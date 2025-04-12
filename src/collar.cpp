@@ -1,69 +1,48 @@
-#include <Arduino.h>
+#include <Adafruit_LSM6DSOX.h>
 #include <Wire.h>
-#include <Adafruit_LSM6DS33.h> // Or your LSM6DSOX library
-#include "common.h"
-#include <ArduinoJson.h> // For potential future JSON formatting if needed, not strictly needed for simple value push
+#include "SharedConfig.h"
 
-Adafruit_LSM6DS33 lsm6ds; // Adjust if you are using a different library or class name.
+SharedConfig config;
+Adafruit_LSM6DSOX lsm6dsox;
 
 void setup() {
-  Serial.begin(115200);
-  connectWiFi();
+    Serial.begin(115200);
+    config.connectWiFi();
+    Wire.begin();
 
-  Serial.println("Starting LSM6DSOX sensor");
-  if (!lsm6ds.begin_I2C()) { // or begin_SPI(CS_PIN)
-    Serial.println("Failed to initialize LSM6DSOX sensor!");
-    while (1);
-  }
-  Serial.println("Found LSM6DSOX sensor!");
+    if (!lsm6dsox.begin_I2C()) {
+        Serial.println("LSM6DSOX sensor not found!");
+        while (1) delay(10);
+    }
+    Serial.println("LSM6DSOX initialized.");
 }
 
 void loop() {
-  sensors_event_t accel, gyro, temp;
-  lsm6ds.getEvent(&accel, &gyro, &temp);
+    sensors_event_t accel, gyro, temp;
+    lsm6dsox.getEvent(&accel, &gyro, &temp);
 
-  // Calculate activity level (simple magnitude of acceleration)
-  float activityLevel = sqrt(pow(accel.acceleration.x, 2) + pow(accel.acceleration.y, 2) + pow(accel.acceleration.z, 2));
+    // Simple activity metric (sum of absolute values as example)
+    float activityLevel = abs(accel.acceleration.x) + abs(accel.acceleration.y) + abs(accel.acceleration.z);
 
-  Serial.print("Activity Level: ");
-  Serial.println(activityLevel);
+    Serial.println("Activity Level: " + String(activityLevel));
 
-  // Post activity level to Firebase
-  postActivityLevel(activityLevel);
+    // Prepare JSON data
+    StaticJsonDocument<200> doc;
+    doc["activityLevel"] = activityLevel;
+    doc["timestamp"] = millis(); // simple timestamp
 
-  delay(2000); // Send data every 2 seconds
-}
+    String jsonPayload;
+    serializeJson(doc, jsonPayload);
 
-void postActivityLevel(float activityLevel) {
-  HTTPClient http;
+    // POST data to Firebase
+    String endpoint = FIREBASE_URL + "/collar/activity.json"; // chosen endpoint structure
+    config.http.begin(endpoint);
+    config.http.addHeader("Content-Type", "application/json");
 
-  String firebaseEndpoint = String(FIREBASE_URL) + FIREBASE_PATH + ".json"; // Construct the endpoint URL
+    int responseCode = config.http.POST(jsonPayload);
+    Serial.println("Firebase POST Response: " + String(responseCode));
 
-  http.begin(firebaseEndpoint.c_str());
-  http.addHeader("Content-Type", "application/json");
+    config.http.end();
 
-  // Create JSON payload (even for a single value, Firebase expects JSON)
-  String httpRequestData = "{\"activity_level\": " + String(activityLevel) + "}";
-
-  Serial.print("Sending to Firebase: ");
-  Serial.println(httpRequestData);
-
-  int httpResponseCode = http.PUT(httpRequestData); // Use PUT to update the value at the path
-
-  if (httpResponseCode > 0) {
-    Serial.print("HTTP Response code: ");
-    Serial.println(httpResponseCode);
-    if (httpResponseCode == HTTP_CODE_OK || httpResponseCode == HTTP_CODE_ACCEPTED) {
-      String response = http.getString();
-      Serial.println("Response from Firebase:");
-      Serial.println(response);
-    } else {
-      Serial.print("Error posting to Firebase, code: ");
-      Serial.println(httpResponseCode);
-    }
-  } else {
-    Serial.print("Error on HTTP request: ");
-    Serial.println(http.errorToString(httpResponseCode).c_str());
-  }
-  http.end();
+    delay(5000); // send data every 5 seconds
 }

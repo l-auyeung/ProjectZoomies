@@ -1,189 +1,110 @@
-#include <Arduino.h>
-#include <WiFi.h>
-#include <HTTPClient.h>
-#include <ArduinoJson.h>
-#include "common.h"
+#include "SharedConfig.h"
 
-// Gemini API Key - Replace with your actual Gemini API key
-const char* GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"; // IMPORTANT: Securely manage your API key.
+SharedConfig config;
 
-// Robot States Enum
-enum RobotState {
-  STOP,
-  EVADE,
-  SPIN
+enum BotState {
+    EVADE,
+    SPIN,
+    STOP,
+    UNKNOWN
 };
 
-RobotState currentRobotState = STOP; // Initial state
+BotState currentState = UNKNOWN;
 
 void setup() {
-  Serial.begin(115200);
-  connectWiFi();
-  Serial.println("Bot ESP32 started");
+    Serial.begin(115200);
+    config.connectWiFi();
+}
+
+BotState parseGeminiResponse(const String& payload) {
+    StaticJsonDocument<512> doc;
+    deserializeJson(doc, payload);
+    
+    String state = doc["candidates"][0]["content"]["parts"][0]["text"];
+    state.trim();
+    
+    if (state == "evade") return EVADE;
+    if (state == "spin") return SPIN;
+    if (state == "stop") return STOP;
+
+    return UNKNOWN;
+}
+
+BotState getActivityBasedState(float activityLevel) {
+    StaticJsonDocument<500> requestDoc;
+
+    String prompt = "Given the animal's activity level (" + String(activityLevel) + "), choose the bot state from ['evade','spin','stop']:\n";
+    requestDoc["contents"][0]["parts"][0]["text"] = prompt;
+    requestDoc["generationConfig"]["response_mime_type"] = "application/json";
+    requestDoc["generationConfig"]["response_schema"]["type"] = "STRING";
+    String requestPayload;
+    serializeJson(requestDoc, requestPayload);
+
+    config.http.begin(GEMINI_ENDPOINT);
+    config.http.addHeader("Content-Type", "application/json");
+
+    int code = config.http.POST(requestPayload);
+    String response = config.http.getString();
+
+    config.http.end();
+
+    if (code == 200) {
+        return parseGeminiResponse(response);
+    } else {
+        Serial.println("Gemini API Error: " + String(code));
+        return UNKNOWN;
+    }
 }
 
 void loop() {
-  float activityLevel = getActivityLevelFromFirebase();
-  Serial.print("Activity Level from Firebase: ");
-  Serial.println(activityLevel);
+    // GET activity data from Firebase
+    String endpoint = FIREBASE_URL + "/collar/activity.json?orderBy=\"$key\"&limitToLast=1";
+    config.http.begin(endpoint);
 
-  if (activityLevel != -1.0) { // -1.0 indicates error fetching data
-    RobotState newState = getRobotStateFromGemini(activityLevel);
-    if (newState != currentRobotState) {
-      currentRobotState = newState;
-      Serial.print("Robot State changed to: ");
-      Serial.println(stateToString(currentRobotState));
-      // Implement robot actions based on the new state here
-      performRobotAction(currentRobotState);
-    } else {
-      Serial.print("Robot State remains: ");
-      Serial.println(stateToString(currentRobotState));
-    }
-  }
+    int code = config.http.GET();
+    String payload = config.http.getString();
 
-  delay(5000); // Check every 5 seconds
-}
+    config.http.end();
 
-float getActivityLevelFromFirebase() {
-  HTTPClient http;
-  String firebaseEndpoint = String(FIREBASE_URL) + FIREBASE_PATH + "/activity_level.json"; // Get specific activity_level node
-
-  http.begin(firebaseEndpoint.c_str());
-  int httpResponseCode = http.GET();
-
-  if (httpResponseCode > 0) {
-    if (httpResponseCode == HTTP_CODE_OK) {
-      String payload = http.getString();
-      Serial.print("Firebase Payload: ");
-      Serial.println(payload);
-      float activity = payload.toFloat(); // Directly convert the string value to float
-      http.end();
-      return activity;
-    } else {
-      Serial.print("Error fetching activity level from Firebase, code: ");
-      Serial.println(httpResponseCode);
-    }
-  } else {
-    Serial.print("Error on HTTP request to Firebase: ");
-    Serial.println(http.errorToString(httpResponseCode).c_str());
-  }
-  http.end();
-  return -1.0; // Return -1.0 to indicate error
-}
-
-RobotState getRobotStateFromGemini(float activityLevel) {
-  HTTPClient http;
-  String geminiEndpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + String(GEMINI_API_KEY);
-
-  http.begin(geminiEndpoint.c_str());
-  http.addHeader("Content-Type", "application/json");
-
-  // Construct Gemini API request payload
-  String promptText = "The animal activity level is " + String(activityLevel) + ". Based on this level, choose one of the following robot states: EVADE, SPIN, STOP. Output ONLY the state name as a string in JSON format.";
-  String httpRequestData;
-
-  // JSON Schema for Gemini response
-  String responseSchemaJson =
-    "{"
-    "  \"type\": \"OBJECT\","
-    "  \"properties\": {"
-    "    \"robot_state\": {"
-    "      \"type\": \"STRING\","
-    "      \"enum\": [\"EVADE\", \"SPIN\", \"STOP\"]"
-    "    }"
-    "  },"
-    "  \"required\": [\"robot_state\"]"
-    "}";
-
-
-  // Construct the full JSON request payload for Gemini
-  DynamicJsonDocument doc(1024); // Adjust buffer size if needed
-  JsonObject contentsArr = doc.createNestedArray("contents").createNestedObject();
-  JsonObject partsArr = contentsArr.createNestedArray("parts").createNestedObject();
-  partsArr["text"] = promptText;
-
-  JsonObject generationConfig = doc.createNestedObject("generationConfig");
-  generationConfig["response_mime_type"] = "application/json";
-  JsonObject responseSchema = generationConfig.createNestedObject("response_schema");
-  deserializeJson(responseSchema, responseSchemaJson); // Parse the schema JSON string
-
-  serializeJson(doc, httpRequestData);
-
-  Serial.print("Gemini Request Payload: ");
-  Serial.println(httpRequestData);
-
-  int httpResponseCode = http.POST(httpRequestData);
-
-  if (httpResponseCode > 0) {
-    if (httpResponseCode == HTTP_CODE_OK) {
-      String payload = http.getString();
-      Serial.print("Gemini Response Payload: ");
-      Serial.println(payload);
-
-      DynamicJsonDocument responseDoc(1024); // Adjust buffer size as needed
-      DeserializationError error = deserializeJson(responseDoc, payload);
-
-      if (error) {
-        Serial.print("JSON Deserialization Error: ");
-        Serial.println(error.c_str());
-        http.end();
-        return STOP; // Default to STOP in case of parsing error
-      }
-
-      if (responseDoc["candidates"] && responseDoc["candidates"][0]["content"]["parts"][0]["text"]) {
-        String stateStr = responseDoc["candidates"][0]["content"]["parts"][0]["text"].as<String>();
-        stateStr.trim(); // Remove potential whitespace
-
-        if (stateStr.equalsIgnoreCase("EVADE")) return EVADE;
-        else if (stateStr.equalsIgnoreCase("SPIN")) return SPIN;
-        else if (stateStr.equalsIgnoreCase("STOP")) return STOP;
-        else {
-          Serial.println("Unknown state from Gemini: " + stateStr);
-          return STOP; // Default to STOP for unknown state
+    if (code == 200) {
+        StaticJsonDocument<256> doc;
+        deserializeJson(doc, payload);
+        
+        JsonObject root = doc.as<JsonObject>();
+        float latestActivity = 0.0;
+        for (JsonPair kv : root) {
+            latestActivity = kv.value()["activityLevel"];
         }
-      } else {
-        Serial.println("Unexpected Gemini response format (no text in parts).");
-        return STOP; // Default to STOP if response format is unexpected
-      }
 
+        Serial.println("Latest Activity Level: " + String(latestActivity));
+
+        // Get state from Gemini
+        BotState newState = getActivityBasedState(latestActivity);
+        if (newState != currentState && newState != UNKNOWN) {
+            currentState = newState;
+            switch(currentState) {
+                case EVADE:
+                    Serial.println("State: EVADE");
+                    // implement evade logic
+                    break;
+                case SPIN:
+                    Serial.println("State: SPIN");
+                    // implement spin logic
+                    break;
+                case STOP:
+                    Serial.println("State: STOP");
+                    // implement stop logic
+                    break;
+                default:
+                    Serial.println("Unknown state received.");
+                    break;
+            }
+        } else {
+            Serial.println("No state change or unknown state.");
+        }
     } else {
-      Serial.print("Error from Gemini API, code: ");
-      Serial.println(httpResponseCode);
-      String payload = http.getString();
-      Serial.print("Error Payload: ");
-      Serial.println(payload);
+        Serial.println("Error fetching activity from Firebase: " + String(code));
     }
-  } else {
-    Serial.print("Error on HTTP request to Gemini API: ");
-    Serial.println(http.errorToString(httpResponseCode).c_str());
-  }
-  http.end();
-  return STOP; // Default to STOP in case of any error
-}
 
-
-void performRobotAction(RobotState state) {
-  switch (state) {
-    case STOP:
-      Serial.println("Robot action: STOP");
-      // Implement STOP robot movement here
-      break;
-    case EVADE:
-      Serial.println("Robot action: EVADE");
-      // Implement EVADE robot movement here
-      break;
-    case SPIN:
-      Serial.println("Robot action: SPIN");
-      // Implement SPIN robot movement here
-      break;
-  }
-}
-
-String stateToString(RobotState state) {
-  switch (state) {
-    case STOP: return "STOP";
-    case EVADE: return "EVADE";
-    case SPIN: return "SPIN";
-    default: return "UNKNOWN";
-  }
+    delay(5000); // fetch new data every 5 seconds
 }
