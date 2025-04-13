@@ -1,4 +1,5 @@
 #include "SharedConfig.h"
+#include "MotorDriver.h"
 
 SharedConfig config;
 
@@ -10,10 +11,14 @@ enum BotState {
 };
 
 BotState currentState = UNKNOWN;
+MotorDriver motorDriver(2, 4, 5,  // Left motor pins: IN1, IN2, PWM
+                        3, 7, 6); // Right motor pins: IN1, IN2, PWM
 
 void setup() {
     Serial.begin(115200);
     config.connectWiFi();
+    motorDriver.setSpeed(150); // Set initial speed
+    motorDriver.driveStraight(); // Initialize motors to stop
 }
 
 BotState parseGeminiResponse(const String& payload) {
@@ -85,15 +90,15 @@ void loop() {
             switch(currentState) {
                 case EVADE:
                     Serial.println("State: EVADE");
-                    // implement evade logic
+                    motorDriver.driveZigzag(50);
                     break;
                 case SPIN:
                     Serial.println("State: SPIN");
-                    // implement spin logic
+                    motorDriver.driveCircle(10);
                     break;
                 case STOP:
                     Serial.println("State: STOP");
-                    // implement stop logic
+                    motorDriver.driveStraight();
                     break;
                 default:
                     Serial.println("Unknown state received.");

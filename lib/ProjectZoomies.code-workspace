@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"name": "asdf",
+			"path": "../asdf/asdf"
+		}
+	],
+	"settings": {}
+}
