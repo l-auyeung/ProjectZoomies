@@ -1,0 +1,9 @@
+1. x1 	Pom Pom 				$4
+2. x1 	wood thing				$5
+3. x1 	1k resistor				$1
+4. x1 	Ball Caster				$1
+5. x1 	Metal Ball				$1
+6. x10 	Jumper Wires				$1
+7. 	Duct Tape				$5
+8. x1	3D Printed Ball Bearing Attachment	$0.20
+9.  	Super Glue				$6
