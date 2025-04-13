@@ -36,46 +36,85 @@
     body {
       margin: 0;
       padding: 0;
-      background-color: #fce5b2; /* Light orange/beige backdrop */
+      background: linear-gradient(to bottom, #fce5b2, #ffce83); /* Correct gradient */
       font-family: "Press Start 2P", monospace;
-      color: #6b3c1f; /* Brownish text to match the 8-bit palette */
-      font-size: 14px;
+      color: #6b3c1f;
+      font-size: 16px;
+      image-rendering: pixelated;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     header {
       text-align: center;
       padding: 1em 0;
-      background-color: #ffce83; /* Slightly deeper orange bar */
+      background: linear-gradient(to bottom, #ffda9e, #ffce83);
       border-bottom: 4px solid #dba45a;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 0 rgba(107, 60, 31, 0.3);
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: repeating-linear-gradient(90deg, #dba45a, #ffce83 4px, #dba45a 8px);
+      opacity: 0.5;
     }
 
     h1 {
       margin: 0.2em 0;
-      font-size: 20px;
+      font-size: 24px; /* Larger header text */
+      text-shadow: 3px 3px 0 rgba(107, 60, 31, 0.3);
+      color: #8B4513;
+      letter-spacing: 1px;
     }
 
     .status-line {
-      font-size: 16px;
+      font-size: 18px; /* Slightly larger status text */
       margin-top: 0.5em;
+      text-shadow: 2px 2px 0 rgba(107, 60, 31, 0.2);
     }
 
     .cat-icon {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      width: 72px;
-      height: 72px;
+      position: fixed;
+      top: 30px;
+      right: 30px;
+      width: 180px;
+      height: 180px;
       border: 4px solid #dba45a;
-      border-radius: 50%;
+      border-radius: 8px;
       background-color: #ffe8bf;
       display: flex;
       align-items: center;
       justify-content: center;
+      transform: rotate(3deg);
+      box-shadow: 3px 3px 0 rgba(107, 60, 31, 0.5);
+      z-index: 100;
+    }
+
+    .cat-icon::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 2px solid #ffe8bf;
+      border-radius: 4px;
+      pointer-events: none;
     }
 
     .cat-icon img {
-      width: 48px;
-      height: 48px;
+      width: 160px;
+      height: 160px;
+      image-rendering: pixelated;
+      object-fit: cover;
     }
 
     .main-container {
@@ -83,28 +122,72 @@
       justify-content: space-around;
       margin: 1em;
       flex-wrap: wrap;
+      max-width: 1400px;
+      width: 100%;
+      margin: 1em auto;
     }
 
     .box {
-      background-color: #ffce83;
+      background: linear-gradient(to bottom, #ffda9e, #ffce83);
       border: 4px solid #dba45a;
-      border-radius: 4px; /* somewhat “boxy” */
+      border-radius: 4px;
       padding: 1em;
       margin: 0.5em;
       min-width: 280px;
-      width: 340px;
-      box-shadow: 4px 4px #dba45a;
+      width: calc(45% - 2em);
+      box-shadow: 5px 5px 0 rgba(107, 60, 31, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .box::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: repeating-linear-gradient(90deg, #ffe8bf, #ffce83 4px, #ffe8bf 8px);
+      opacity: 0.5;
+    }
+
+    .box::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: repeating-linear-gradient(90deg, #dba45a, transparent 4px, #dba45a 8px);
+      opacity: 0.3;
     }
 
     .box h2,
     .box h3 {
       margin: 0 0 0.5em 0;
-      font-size: 14px;
+      font-size: 16px; /* Increase box header sizes */
+      text-shadow: 2px 2px 0 rgba(107, 60, 31, 0.2);
+      color: #8B4513;
+      position: relative;
+      padding-left: 10px;
+    }
+
+    .box h2::before,
+    .box h3::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 5px;
+      height: 5px;
+      background-color: #8B4513;
     }
 
     .activity-section .chart-title {
-      font-size: 12px;
+      font-size: 14px; /* Slightly larger chart title */
       margin-bottom: 0.5em;
+      color: #6b3c1f;
     }
 
     .chart-container {
@@ -112,22 +195,36 @@
       border: 2px solid #dba45a;
       border-radius: 4px;
       padding: 0.5em;
+      box-shadow: inset 2px 2px 5px rgba(107, 60, 31, 0.2);
     }
 
     #activityChart {
       width: 100%;
-      height: 200px;
+      height: 250px;
     }
 
     .chat-buttons button {
       display: inline-block;
       margin: 0.3em 0.2em;
-      font-size: 10px;
+      font-size: 12px; /* Larger button text */
       padding: 0.3em 0.5em;
       border: 2px solid #6b3c1f;
       background-color: #fff3d3;
       color: #6b3c1f;
       cursor: pointer;
+      font-family: "Press Start 2P", monospace;
+      box-shadow: 2px 2px 0 rgba(107, 60, 31, 0.5);
+      transition: transform 0.1s;
+    }
+
+    .chat-buttons button:hover {
+      transform: translateY(-2px);
+      box-shadow: 2px 4px 0 rgba(107, 60, 31, 0.5);
+    }
+
+    .chat-buttons button:active {
+      transform: translateY(0);
+      box-shadow: 1px 1px 0 rgba(107, 60, 31, 0.5);
     }
 
     .chat-user-input {
@@ -140,8 +237,11 @@
       border: 2px solid #6b3c1f;
       background-color: #fff3d3;
       color: #6b3c1f;
-      padding: 0.3em;
-      font-size: 10px;
+      padding: 0.5em;
+      font-size: 12px; /* Larger input and button text */
+      font-family: "Press Start 2P", monospace;
+      box-shadow: inset 2px 2px 5px rgba(107, 60, 31, 0.2);
+      height: 40px;
     }
 
     .chat-user-input button {
@@ -149,39 +249,109 @@
       border: 2px solid #6b3c1f;
       background-color: #ffce83;
       color: #6b3c1f;
-      font-size: 10px;
+      font-size: 12px; /* Larger input and button text */
       padding: 0.3em 0.5em;
       cursor: pointer;
+      font-family: "Press Start 2P", monospace;
+      box-shadow: 2px 2px 0 rgba(107, 60, 31, 0.5);
+      transition: transform 0.1s;
+    }
+    
+    .chat-user-input button:hover {
+      background-color: #ffda9e;
+    }
+    
+    .chat-user-input button:active {
+      transform: translateY(1px);
+      box-shadow: 1px 1px 0 rgba(107, 60, 31, 0.5);
     }
 
     .history-box {
       margin: 1em;
       padding: 1em;
-      background-color: #ffce83;
+      background: linear-gradient(to bottom, #ffda9e, #ffce83);
       border: 4px solid #dba45a;
       border-radius: 4px;
-      box-shadow: 4px 4px #dba45a;
+      box-shadow: 5px 5px 0 rgba(107, 60, 31, 0.4);
+      max-width: 1400px;
+      width: calc(100% - 2em);
+      margin: 1em auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .history-box::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: repeating-linear-gradient(90deg, #ffe8bf, #ffce83 4px, #ffe8bf 8px);
+      opacity: 0.5;
     }
 
     .history-box h3 {
       margin: 0;
-      font-size: 14px;
+      font-size: 16px; /* Larger history box header */
       margin-bottom: 0.5em;
+      text-shadow: 2px 2px 0 rgba(107, 60, 31, 0.2);
+      color: #8B4513;
+      position: relative;
+      padding-left: 10px;
+    }
+    
+    .history-box h3::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 5px;
+      height: 5px;
+      background-color: #8B4513;
+    }
+
+    #historyContent {
+      background-color: #fff3d3;
+      border: 2px solid #dba45a;
+      padding: 0.5em;
+      font-size: 14px; /* Larger history content text */
+      border-radius: 4px;
+      box-shadow: inset 2px 2px 5px rgba(107, 60, 31, 0.2);
     }
 
     .chat-log {
-      min-height: 100px;
+      min-height: 150px;
       background-color: #fff3d3;
       border: 2px solid #dba45a;
       padding: 0.5em;
       margin-bottom: 0.5em;
-      font-size: 10px;
+      font-size: 12px; /* Larger chat log text */
       overflow-y: auto;
-      max-height: 150px;
+      max-height: 200px;
+      box-shadow: inset 2px 2px 5px rgba(107, 60, 31, 0.2);
+      border-radius: 4px;
+    }
+
+    .chat-log p:nth-child(odd) {
+      background-color: rgba(255, 206, 131, 0.3);
+      padding: 3px;
+      border-radius: 2px;
     }
 
     p {
       margin: 0.4em 0;
+    }
+
+    /* Add pixelated state indicators */
+    #currentState {
+      position: relative;
+      padding: 5px 10px;
+      border: 2px solid #6b3c1f;
+      background-color: #fff3d3;
+      display: inline-block;
+      margin: 0 3px;
     }
   </style>
 </head>
@@ -193,7 +363,7 @@
     </div>
     <!-- Placeholder cat icon in a circular badge -->
     <div class="cat-icon">
-      <img src="cat_icon.png" alt="Pet Icon" />
+      <img src="myBOY.jpg" alt="Pet Icon" />
     </div>
   </header>
 
@@ -209,7 +379,7 @@
 
     <!-- Chat box -->
     <div class="box chat-section">
-      <h2>Chat with Compawnion</h2>
+      <h2>Chat with ComPawnion</h2>
       <!-- Chat log area -->
       <div class="chat-log" id="chatLog">Loading Chat…</div>
 
@@ -217,7 +387,7 @@
       <div class="chat-buttons">
         <button onclick="onQuickChat('Hello!')">Hello!</button>
         <button onclick="onQuickChat('Hi')">Hi</button>
-        <button onclick="onQuickChat('Move more')">Move more</button>
+        <button onclick="onQuickChat('How\s Whiskers??')">How's Whiskers??</button>
       </div>
       <div class="chat-user-input">
         <input type="text" id="chatInput" placeholder="Type message…" />
@@ -236,7 +406,6 @@
     // Global variables for chart + data
     let activityChart;
     let activityData = [];
-    let chartLabels = [];
     let totalActiveMinutes = 0;
     let totalIdleMinutes = 0;
 
@@ -260,7 +429,9 @@
               tension: 0.2,
               fill: true,
               parsing: { xAxisKey: "x", yAxisKey: "y" },
-            },
+              showLine: true, // Ensure only the line is shown
+              pointRadius: 0 // Disable points on the graph
+            }
           ],
         },
         options: {
@@ -269,11 +440,12 @@
             x: {
               type: "time",
               time: {
-                unit: "hour",
+                unit: "minute",
+                stepSize: 5,
+                displayFormats: {
+                  minute: 'HH:mm'
+                }
               },
-              // Force bounds from midnight to midnight
-              min: getStartOfToday(),
-              max: getEndOfToday(),
             },
             y: {
               beginAtZero: true,
@@ -284,7 +456,7 @@
       });
 
       // Listen to the entire DB or a specific ref
-      db.ref("/").on("value", (snapshot) => {
+      db.ref("/sensor").on("value", (snapshot) => {
         const data = snapshot.val();
         if (!data) {
           return;
@@ -296,31 +468,74 @@
         // Sort by timestamp ascending
         entries.sort((a, b) => a.timestamp - b.timestamp);
 
-        // Filter only today's data
-        const startDay = getStartOfToday().getTime();
-        const endDay = getEndOfToday().getTime();
-        const todayEntries = entries.filter(
-          (item) => item.timestamp >= startDay && item.timestamp <= endDay
+        // Get the latest timestamp to use as reference point
+        const latestTimestamp = entries.length > 0 ? entries[entries.length - 1].timestamp : Date.now();
+        const oneHourAgo = latestTimestamp - (60 * 60 * 1000); // 1 hour in milliseconds
+        const sixHoursAgo = latestTimestamp - (6 * 60 * 60 * 1000); // 6 hours in milliseconds
+
+        // Filter only past hour's data
+        const hourEntries = entries.filter(
+          (item) => item.timestamp >= oneHourAgo && item.timestamp <= latestTimestamp
+        );
+
+        // For activity/idle calculations, use past 6 hours
+        const sixHourEntries = entries.filter(
+          (item) => item.timestamp >= sixHoursAgo && item.timestamp <= latestTimestamp
         );
 
         // Clear accumulators
         activityData = [];
+        let movingAverageData = [];
         totalActiveMinutes = 0;
         totalIdleMinutes = 0;
 
-        // Build chart data from the daily subset
-        for (let i = 0; i < todayEntries.length; i++) {
-          const it = todayEntries[i];
+        // Build chart data from the hourly subset
+        for (let i = 0; i < hourEntries.length; i++) {
+          const it = hourEntries[i];
           activityData.push({
             x: it.timestamp,
-            y: it.activityLevel,
+            y: Math.ceil(Math.abs(it.activityLevel - 9.8)), // Calculate absolute difference from 9.8 and round
           });
         }
 
-        // Compute total active/idle durations from consecutive entries
-        for (let i = 0; i < todayEntries.length - 1; i++) {
-          const current = todayEntries[i];
-          const next = todayEntries[i + 1];
+        // Calculate moving average with window size of 60
+        const windowSize = 60;
+        for (let i = 0; i < activityData.length; i++) {
+          if (i >= windowSize - 1) {
+            // We have enough points to calculate a moving average
+            let sum = 0;
+            for (let j = 0; j < windowSize; j++) {
+              sum += activityData[i - j].y;
+            }
+            const avg = sum / windowSize;
+            movingAverageData.push({
+              x: activityData[i].x,
+              y: avg
+            });
+          } else if (i > 0) {
+            // For the first few points, use whatever we have
+            let sum = 0;
+            for (let j = 0; j <= i; j++) {
+              sum += activityData[i - j].y;
+            }
+            const avg = sum / (i + 1);
+            movingAverageData.push({
+              x: activityData[i].x,
+              y: avg
+            });
+          } else {
+            // First point is just itself
+            movingAverageData.push({
+              x: activityData[i].x,
+              y: activityData[i].y
+            });
+          }
+        }
+
+        // Compute total active/idle durations from consecutive entries in past 6 hours
+        for (let i = 0; i < sixHourEntries.length - 1; i++) {
+          const current = sixHourEntries[i];
+          const next = sixHourEntries[i + 1];
           const diffMs = next.timestamp - current.timestamp;
           const diffMin = diffMs / 60000; // ms->minutes
 
@@ -340,18 +555,32 @@
         // If needed, rename pet based on your data or just keep "Whiskers"
         petNameEl.textContent = "Whiskers";
 
-        // Update the chart
-        activityChart.data.datasets[0].data = activityData;
+        // Update the chart with past hour bounds
+        activityChart.options.scales.x.min = oneHourAgo;
+        activityChart.options.scales.x.max = latestTimestamp;
+        activityChart.data.datasets[0].data = movingAverageData; // Use moving average as activity level
         activityChart.update();
 
-        // Update the history text
+        // Format active/idle time as hours and minutes
+        function formatTimeAsHoursAndMinutes(minutes) {
+          const hours = Math.floor(minutes / 60);
+          const mins = Math.floor(minutes % 60);
+          
+          if (hours > 0) {
+            return `${hours} hour${hours > 1 ? 's' : ''} and ${mins} minute${mins > 1 ? 's' : ''}`;
+          } else {
+            return `${mins} minute${mins > 1 ? 's' : ''}`;
+          }
+        }
+
+        // Update the history text with formatted time
         historyEl.innerHTML = `
-          Whiskers was active for ${totalActiveMinutes.toFixed(1)} minutes<br/>
-          Whiskers rested for ${totalIdleMinutes.toFixed(1)} minutes
+          Whiskers was active for ${formatTimeAsHoursAndMinutes(totalActiveMinutes)}<br/>
+          Whiskers rested for ${formatTimeAsHoursAndMinutes(totalIdleMinutes)}
         `;
       });
-    });
 
+    // These functions are no longer needed for chart bounds, but keep them for history calculation
     function getStartOfToday() {
       const now = new Date();
       return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
@@ -367,6 +596,7 @@
         59
       );
     }
+    });
 
     // ─────────────────────────────────────
     // Chat with Compawnion (Placeholder)
@@ -399,37 +629,41 @@
     }
 
     function sendMessageToGemini(userMessage) {
-      /*
-         TODO: Replace with actual Gemini model call (gemini-2.0-flash).
-         Include a systemPrompt to encourage pun-based, pet-themed replies.
+      const apiKey = "AIzaSyBQuIAP92b2UHhfykqhOnosl4cL89osUAM";
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-         Example pseudo-code:
+      const currentState = document.getElementById("currentState").textContent;
+      const activeTime = formatTimeAsHoursAndMinutes(totalActiveMinutes);
+      const idleTime = formatTimeAsHoursAndMinutes(totalIdleMinutes);
 
-         const systemPrompt = "You are a playful robotic companion for a cat named Whiskers. Respond with cat puns and silly jokes where appropriate.";
-         const requestBody = {
-           model: "gemini-2.0-flash",
-           messages: [
-             {role: "system", content: systemPrompt},
-             {role: "user", content: userMessage}
-           ]
-         };
-         fetch("https://your-gemini-endpoint", {
-           method: "POST",
-           headers: {"Content-Type": "application/json"},
-           body: JSON.stringify(requestBody)
-         })
-         .then(res => res.json())
-         .then(data => {
-            const compawnionReply = data?.choices?.[0]?.message?.content || "No response";
-            appendChatMessage("Compawnion", compawnionReply);
-         });
+      const prompt = `You are a caretaker for the user's cat, Whiskers. Respond with cat puns and silly jokes when appropriate. Your job is to inform the user about the cat's activity. Current state: ${currentState}. Total active time: ${activeTime}. Total idle time: ${idleTime}. User message: ${userMessage}`;
 
-       */
-      // Simulate an LLM response:
-      setTimeout(() => {
-        const fakeResponse = "Purr-fectly noted! (Fake Gemini response)";
-        appendChatMessage("Compawnion", fakeResponse);
-      }, 1500);
+      const requestBody = {
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt
+              }
+            ]
+          }
+        ]
+      };
+
+      fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody)
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const compawnionReply = data?.contents?.[0]?.parts?.[0]?.text || "No response";
+          appendChatMessage("Compawnion", compawnionReply);
+        })
+        .catch((error) => {
+          console.error("Error calling Gemini API:", error);
+          appendChatMessage("Compawnion", "Sorry, I couldn't fetch a response.");
+        });
     }
   </script>
 </body>
