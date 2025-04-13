@@ -1,111 +1,436 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Project Zoomies Dashboard</title>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Project Zoomies Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/11.6.0/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/11.6.0/firebase-auth-compat.js"></script>
-    <script
-      defer
-      src="/__/firebase/11.6.0/firebase-database-compat.js"
-    ></script>
-    <script
-      defer
-      src="/__/firebase/11.6.0/firebase-firestore-compat.js"
-    ></script>
-    <script
-      defer
-      src="/__/firebase/11.6.0/firebase-functions-compat.js"
-    ></script>
-    <script
-      defer
-      src="/__/firebase/11.6.0/firebase-messaging-compat.js"
-    ></script>
-    <script defer src="/__/firebase/11.6.0/firebase-storage-compat.js"></script>
-    <script
-      defer
-      src="/__/firebase/11.6.0/firebase-analytics-compat.js"
-    ></script>
-    <script
-      defer
-      src="/__/firebase/11.6.0/firebase-remote-config-compat.js"
-    ></script>
-    <script
-      defer
-      src="/__/firebase/11.6.0/firebase-performance-compat.js"
-    ></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+  <!-- Firebase SDKs (as in your sample) -->
+  <script defer src="/__/firebase/11.6.0/firebase-app-compat.js"></script>
+  <script defer src="/__/firebase/11.6.0/firebase-auth-compat.js"></script>
+  <script defer src="/__/firebase/11.6.0/firebase-database-compat.js"></script>
+  <script defer src="/__/firebase/11.6.0/firebase-firestore-compat.js"></script>
+  <script defer src="/__/firebase/11.6.0/firebase-functions-compat.js"></script>
+  <script defer src="/__/firebase/11.6.0/firebase-messaging-compat.js"></script>
+  <script defer src="/__/firebase/11.6.0/firebase-storage-compat.js"></script>
+  <script defer src="/__/firebase/11.6.0/firebase-analytics-compat.js"></script>
+  <script defer src="/__/firebase/11.6.0/firebase-remote-config-compat.js"></script>
+  <script defer src="/__/firebase/11.6.0/firebase-performance-compat.js"></script>
+  <!-- Initialize Firebase -->
+  <script defer src="/__/firebase/init.js?useEmulator=true"></script>
 
-    <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+  <!-- Chart.js + date-fns adapter (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
-    <style>
-      body {
-        background-color: #f8f9fa;
-        padding-top: 20px;
-      }
-      .card {
-        margin-bottom: 20px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1 class="text-center mb-4">Project Zoomies Data Dashboard</h1>
-      <div id="data-container" class="row"></div>
-      <p id="load" class="text-center text-muted">Loading data...</p>
+  <!-- 8-bit/Pixellated font (Press Start 2P) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #fce5b2; /* Light orange/beige backdrop */
+      font-family: "Press Start 2P", monospace;
+      color: #6b3c1f; /* Brownish text to match the 8-bit palette */
+      font-size: 14px;
+    }
+
+    header {
+      text-align: center;
+      padding: 1em 0;
+      background-color: #ffce83; /* Slightly deeper orange bar */
+      border-bottom: 4px solid #dba45a;
+    }
+
+    h1 {
+      margin: 0.2em 0;
+      font-size: 20px;
+    }
+
+    .status-line {
+      font-size: 16px;
+      margin-top: 0.5em;
+    }
+
+    .cat-icon {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 72px;
+      height: 72px;
+      border: 4px solid #dba45a;
+      border-radius: 50%;
+      background-color: #ffe8bf;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cat-icon img {
+      width: 48px;
+      height: 48px;
+    }
+
+    .main-container {
+      display: flex;
+      justify-content: space-around;
+      margin: 1em;
+      flex-wrap: wrap;
+    }
+
+    .box {
+      background-color: #ffce83;
+      border: 4px solid #dba45a;
+      border-radius: 4px; /* somewhat “boxy” */
+      padding: 1em;
+      margin: 0.5em;
+      min-width: 280px;
+      width: 340px;
+      box-shadow: 4px 4px #dba45a;
+    }
+
+    .box h2,
+    .box h3 {
+      margin: 0 0 0.5em 0;
+      font-size: 14px;
+    }
+
+    .activity-section .chart-title {
+      font-size: 12px;
+      margin-bottom: 0.5em;
+    }
+
+    .chart-container {
+      background-color: #fff3d3;
+      border: 2px solid #dba45a;
+      border-radius: 4px;
+      padding: 0.5em;
+    }
+
+    #activityChart {
+      width: 100%;
+      height: 200px;
+    }
+
+    .chat-buttons button {
+      display: inline-block;
+      margin: 0.3em 0.2em;
+      font-size: 10px;
+      padding: 0.3em 0.5em;
+      border: 2px solid #6b3c1f;
+      background-color: #fff3d3;
+      color: #6b3c1f;
+      cursor: pointer;
+    }
+
+    .chat-user-input {
+      display: flex;
+      margin-top: 0.3em;
+    }
+
+    .chat-user-input input {
+      flex: 1;
+      border: 2px solid #6b3c1f;
+      background-color: #fff3d3;
+      color: #6b3c1f;
+      padding: 0.3em;
+      font-size: 10px;
+    }
+
+    .chat-user-input button {
+      margin-left: 0.3em;
+      border: 2px solid #6b3c1f;
+      background-color: #ffce83;
+      color: #6b3c1f;
+      font-size: 10px;
+      padding: 0.3em 0.5em;
+      cursor: pointer;
+    }
+
+    .history-box {
+      margin: 1em;
+      padding: 1em;
+      background-color: #ffce83;
+      border: 4px solid #dba45a;
+      border-radius: 4px;
+      box-shadow: 4px 4px #dba45a;
+    }
+
+    .history-box h3 {
+      margin: 0;
+      font-size: 14px;
+      margin-bottom: 0.5em;
+    }
+
+    .chat-log {
+      min-height: 100px;
+      background-color: #fff3d3;
+      border: 2px solid #dba45a;
+      padding: 0.5em;
+      margin-bottom: 0.5em;
+      font-size: 10px;
+      overflow-y: auto;
+      max-height: 150px;
+    }
+
+    p {
+      margin: 0.4em 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PROJECT ZOOMIES!</h1>
+    <div class="status-line">
+      <span id="petName">Whiskers</span> is currently <span id="currentState">ACTIVE</span>
+    </div>
+    <!-- Placeholder cat icon in a circular badge -->
+    <div class="cat-icon">
+      <img src="cat_icon.png" alt="Pet Icon" />
+    </div>
+  </header>
+
+  <div class="main-container">
+    <!-- Activity box -->
+    <div class="box activity-section">
+      <h2>Activity</h2>
+      <div class="chart-title">Activity Graph</div>
+      <div class="chart-container">
+        <canvas id="activityChart"></canvas>
+      </div>
     </div>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const loadEl = document.querySelector("#load");
-        const dataContainer = document.getElementById("data-container");
+    <!-- Chat box -->
+    <div class="box chat-section">
+      <h2>Chat with Compawnion</h2>
+      <!-- Chat log area -->
+      <div class="chat-log" id="chatLog">Loading Chat…</div>
 
-        try {
-          const db = firebase.database();
-          db.ref("/").on("value", (snapshot) => {
-            const data = snapshot.val();
-            dataContainer.innerHTML = "";
+      <!-- Quick chat buttons -->
+      <div class="chat-buttons">
+        <button onclick="onQuickChat('Hello!')">Hello!</button>
+        <button onclick="onQuickChat('Hi')">Hi</button>
+        <button onclick="onQuickChat('Move more')">Move more</button>
+      </div>
+      <div class="chat-user-input">
+        <input type="text" id="chatInput" placeholder="Type message…" />
+        <button onclick="onSendMessage()">Send</button>
+      </div>
+    </div>
+  </div>
 
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                const card = document.createElement("div");
-                card.className = "col-md-4";
-                card.innerHTML = `
-                  <div class="card shadow-sm">
-                    <div class="card-body">
-                      <h5 class="card-title">${key}</h5>
-                      <pre class="card-text">${JSON.stringify(
-                        data[key],
-                        null,
-                        2
-                      )}</pre>
-                    </div>
-                  </div>
-                `;
-                dataContainer.appendChild(card);
-              });
-              loadEl.textContent = "Data loaded successfully.";
-            } else {
-              loadEl.textContent = "No data available.";
-            }
-          });
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = "Error loading data, check the console.";
-        }
+  <!-- History box -->
+  <div class="history-box">
+    <h3>History</h3>
+    <div id="historyContent">No history yet…</div>
+  </div>
+
+  <script>
+    // Global variables for chart + data
+    let activityChart;
+    let activityData = [];
+    let chartLabels = [];
+    let totalActiveMinutes = 0;
+    let totalIdleMinutes = 0;
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const db = firebase.database();
+      const petNameEl = document.getElementById("petName");
+      const currentStateEl = document.getElementById("currentState");
+      const historyEl = document.getElementById("historyContent");
+
+      // Setup the Chart.js line chart
+      const ctx = document.getElementById("activityChart").getContext("2d");
+      activityChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          datasets: [
+            {
+              label: "Activity Level",
+              data: [],
+              borderColor: "#cc6200",
+              backgroundColor: "rgba(255, 140, 0, 0.3)",
+              tension: 0.2,
+              fill: true,
+              parsing: { xAxisKey: "x", yAxisKey: "y" },
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              type: "time",
+              time: {
+                unit: "hour",
+              },
+              // Force bounds from midnight to midnight
+              min: getStartOfToday(),
+              max: getEndOfToday(),
+            },
+            y: {
+              beginAtZero: true,
+              suggestedMax: 10,
+            },
+          },
+        },
       });
-    </script>
-  </body>
+
+      // Listen to the entire DB or a specific ref
+      db.ref("/").on("value", (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          return;
+        }
+
+        // Transform the object-of-objects into array
+        const entries = Object.values(data);
+
+        // Sort by timestamp ascending
+        entries.sort((a, b) => a.timestamp - b.timestamp);
+
+        // Filter only today's data
+        const startDay = getStartOfToday().getTime();
+        const endDay = getEndOfToday().getTime();
+        const todayEntries = entries.filter(
+          (item) => item.timestamp >= startDay && item.timestamp <= endDay
+        );
+
+        // Clear accumulators
+        activityData = [];
+        totalActiveMinutes = 0;
+        totalIdleMinutes = 0;
+
+        // Build chart data from the daily subset
+        for (let i = 0; i < todayEntries.length; i++) {
+          const it = todayEntries[i];
+          activityData.push({
+            x: it.timestamp,
+            y: it.activityLevel,
+          });
+        }
+
+        // Compute total active/idle durations from consecutive entries
+        for (let i = 0; i < todayEntries.length - 1; i++) {
+          const current = todayEntries[i];
+          const next = todayEntries[i + 1];
+          const diffMs = next.timestamp - current.timestamp;
+          const diffMin = diffMs / 60000; // ms->minutes
+
+          if (current.state === "ACTIVE") {
+            totalActiveMinutes += diffMin;
+          } else if (current.state === "IDLE") {
+            totalIdleMinutes += diffMin;
+          }
+        }
+
+        // If there's at least one entry, figure out the latest state
+        if (entries.length > 0) {
+          const latest = entries[entries.length - 1];
+          currentStateEl.textContent = latest.state || "UNKNOWN";
+        }
+
+        // If needed, rename pet based on your data or just keep "Whiskers"
+        petNameEl.textContent = "Whiskers";
+
+        // Update the chart
+        activityChart.data.datasets[0].data = activityData;
+        activityChart.update();
+
+        // Update the history text
+        historyEl.innerHTML = `
+          Whiskers was active for ${totalActiveMinutes.toFixed(1)} minutes<br/>
+          Whiskers rested for ${totalIdleMinutes.toFixed(1)} minutes
+        `;
+      });
+    });
+
+    function getStartOfToday() {
+      const now = new Date();
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+    }
+    function getEndOfToday() {
+      const now = new Date();
+      return new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        23,
+        59,
+        59
+      );
+    }
+
+    // ─────────────────────────────────────
+    // Chat with Compawnion (Placeholder)
+    // ─────────────────────────────────────
+
+    // Display a basic chat log in #chatLog
+    const chatLog = document.getElementById("chatLog");
+
+    function appendChatMessage(sender, text) {
+      const line = document.createElement("p");
+      line.textContent = sender + ": " + text;
+      chatLog.appendChild(line);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    function onQuickChat(message) {
+      document.getElementById("chatInput").value = message;
+      onSendMessage();
+    }
+
+    function onSendMessage() {
+      const input = document.getElementById("chatInput");
+      const msg = input.value.trim();
+      if (msg) {
+        appendChatMessage("You", msg);
+        input.value = "";
+        // Placeholder call to Gemini
+        sendMessageToGemini(msg);
+      }
+    }
+
+    function sendMessageToGemini(userMessage) {
+      /*
+         TODO: Replace with actual Gemini model call (gemini-2.0-flash).
+         Include a systemPrompt to encourage pun-based, pet-themed replies.
+
+         Example pseudo-code:
+
+         const systemPrompt = "You are a playful robotic companion for a cat named Whiskers. Respond with cat puns and silly jokes where appropriate.";
+         const requestBody = {
+           model: "gemini-2.0-flash",
+           messages: [
+             {role: "system", content: systemPrompt},
+             {role: "user", content: userMessage}
+           ]
+         };
+         fetch("https://your-gemini-endpoint", {
+           method: "POST",
+           headers: {"Content-Type": "application/json"},
+           body: JSON.stringify(requestBody)
+         })
+         .then(res => res.json())
+         .then(data => {
+            const compawnionReply = data?.choices?.[0]?.message?.content || "No response";
+            appendChatMessage("Compawnion", compawnionReply);
+         });
+
+       */
+      // Simulate an LLM response:
+      setTimeout(() => {
+        const fakeResponse = "Purr-fectly noted! (Fake Gemini response)";
+        appendChatMessage("Compawnion", fakeResponse);
+      }, 1500);
+    }
+  </script>
+</body>
 </html>
