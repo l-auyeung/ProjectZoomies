@@ -1,670 +1,643 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Project Zoomies Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <head>
+    <meta charset="UTF-8" />
+    <title>Project Zoomies Dashboard</title>
+    <link rel="icon" type="image/png" href="image.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Firebase SDKs (as in your sample) -->
-  <script defer src="/__/firebase/11.6.0/firebase-app-compat.js"></script>
-  <script defer src="/__/firebase/11.6.0/firebase-auth-compat.js"></script>
-  <script defer src="/__/firebase/11.6.0/firebase-database-compat.js"></script>
-  <script defer src="/__/firebase/11.6.0/firebase-firestore-compat.js"></script>
-  <script defer src="/__/firebase/11.6.0/firebase-functions-compat.js"></script>
-  <script defer src="/__/firebase/11.6.0/firebase-messaging-compat.js"></script>
-  <script defer src="/__/firebase/11.6.0/firebase-storage-compat.js"></script>
-  <script defer src="/__/firebase/11.6.0/firebase-analytics-compat.js"></script>
-  <script defer src="/__/firebase/11.6.0/firebase-remote-config-compat.js"></script>
-  <script defer src="/__/firebase/11.6.0/firebase-performance-compat.js"></script>
-  <!-- Initialize Firebase -->
-  <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+    <!-- Firebase SDKs (as in your sample) -->
+    <script defer src="/__/firebase/11.6.0/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/11.6.0/firebase-auth-compat.js"></script>
+    <script
+      defer
+      src="/__/firebase/11.6.0/firebase-database-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/11.6.0/firebase-firestore-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/11.6.0/firebase-functions-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/11.6.0/firebase-messaging-compat.js"
+    ></script>
+    <script defer src="/__/firebase/11.6.0/firebase-storage-compat.js"></script>
+    <script
+      defer
+      src="/__/firebase/11.6.0/firebase-analytics-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/11.6.0/firebase-remote-config-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/11.6.0/firebase-performance-compat.js"
+    ></script>
+    <!-- Initialize Firebase -->
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
 
-  <!-- Chart.js + date-fns adapter (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- Chart.js + date-fns adapter (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
-  <!-- 8-bit/Pixellated font (Press Start 2P) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
-    rel="stylesheet"
-  />
+    <!-- 8-bit/Pixellated font (Press Start 2P) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
 
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(to bottom, #fce5b2, #ffce83); /* Correct gradient */
-      font-family: "Press Start 2P", monospace;
-      color: #6b3c1f;
-      font-size: 16px;
-      image-rendering: pixelated;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(
+          to bottom,
+          #fce5b2,
+          #ffce83
+        ); /* Correct gradient */
+        font-family: "Press Start 2P", monospace;
+        color: #6b3c1f;
+        font-size: 16px;
+        image-rendering: pixelated;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
 
-    header {
-      text-align: center;
-      padding: 1em 0;
-      background: linear-gradient(to bottom, #ffda9e, #ffce83);
-      border-bottom: 4px solid #dba45a;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 4px 0 rgba(107, 60, 31, 0.3);
-    }
+      header {
+        text-align: center;
+        padding: 1em 0;
+        background: linear-gradient(to bottom, #ffda9e, #ffce83);
+        border-bottom: 4px solid #dba45a;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 0 rgba(107, 60, 31, 0.3);
+      }
 
-    header::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: repeating-linear-gradient(90deg, #dba45a, #ffce83 4px, #dba45a 8px);
-      opacity: 0.5;
-    }
-
-    h1 {
-      margin: 0.2em 0;
-      font-size: 24px; /* Larger header text */
-      text-shadow: 3px 3px 0 rgba(107, 60, 31, 0.3);
-      color: #8B4513;
-      letter-spacing: 1px;
-    }
-
-    .status-line {
-      font-size: 18px; /* Slightly larger status text */
-      margin-top: 0.5em;
-      text-shadow: 2px 2px 0 rgba(107, 60, 31, 0.2);
-    }
-
-    .cat-icon {
-      position: fixed;
-      top: 30px;
-      right: 30px;
-      width: 180px;
-      height: 180px;
-      border: 4px solid #dba45a;
-      border-radius: 8px;
-      background-color: #ffe8bf;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transform: rotate(3deg);
-      box-shadow: 3px 3px 0 rgba(107, 60, 31, 0.5);
-      z-index: 100;
-    }
-
-    .cat-icon::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border: 2px solid #ffe8bf;
-      border-radius: 4px;
-      pointer-events: none;
-    }
-
-    .cat-icon img {
-      width: 160px;
-      height: 160px;
-      image-rendering: pixelated;
-      object-fit: cover;
-    }
-
-    .main-container {
-      display: flex;
-      justify-content: space-around;
-      margin: 1em;
-      flex-wrap: wrap;
-      max-width: 1400px;
-      width: 100%;
-      margin: 1em auto;
-    }
-
-    .box {
-      background: linear-gradient(to bottom, #ffda9e, #ffce83);
-      border: 4px solid #dba45a;
-      border-radius: 4px;
-      padding: 1em;
-      margin: 0.5em;
-      min-width: 280px;
-      width: calc(45% - 2em);
-      box-shadow: 5px 5px 0 rgba(107, 60, 31, 0.4);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .box::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: repeating-linear-gradient(90deg, #ffe8bf, #ffce83 4px, #ffe8bf 8px);
-      opacity: 0.5;
-    }
-
-    .box::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: repeating-linear-gradient(90deg, #dba45a, transparent 4px, #dba45a 8px);
-      opacity: 0.3;
-    }
-
-    .box h2,
-    .box h3 {
-      margin: 0 0 0.5em 0;
-      font-size: 16px; /* Increase box header sizes */
-      text-shadow: 2px 2px 0 rgba(107, 60, 31, 0.2);
-      color: #8B4513;
-      position: relative;
-      padding-left: 10px;
-    }
-
-    .box h2::before,
-    .box h3::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 5px;
-      height: 5px;
-      background-color: #8B4513;
-    }
-
-    .activity-section .chart-title {
-      font-size: 14px; /* Slightly larger chart title */
-      margin-bottom: 0.5em;
-      color: #6b3c1f;
-    }
-
-    .chart-container {
-      background-color: #fff3d3;
-      border: 2px solid #dba45a;
-      border-radius: 4px;
-      padding: 0.5em;
-      box-shadow: inset 2px 2px 5px rgba(107, 60, 31, 0.2);
-    }
-
-    #activityChart {
-      width: 100%;
-      height: 250px;
-    }
-
-    .chat-buttons button {
-      display: inline-block;
-      margin: 0.3em 0.2em;
-      font-size: 12px; /* Larger button text */
-      padding: 0.3em 0.5em;
-      border: 2px solid #6b3c1f;
-      background-color: #fff3d3;
-      color: #6b3c1f;
-      cursor: pointer;
-      font-family: "Press Start 2P", monospace;
-      box-shadow: 2px 2px 0 rgba(107, 60, 31, 0.5);
-      transition: transform 0.1s;
-    }
-
-    .chat-buttons button:hover {
-      transform: translateY(-2px);
-      box-shadow: 2px 4px 0 rgba(107, 60, 31, 0.5);
-    }
-
-    .chat-buttons button:active {
-      transform: translateY(0);
-      box-shadow: 1px 1px 0 rgba(107, 60, 31, 0.5);
-    }
-
-    .chat-user-input {
-      display: flex;
-      margin-top: 0.3em;
-    }
-
-    .chat-user-input input {
-      flex: 1;
-      border: 2px solid #6b3c1f;
-      background-color: #fff3d3;
-      color: #6b3c1f;
-      padding: 0.5em;
-      font-size: 12px; /* Larger input and button text */
-      font-family: "Press Start 2P", monospace;
-      box-shadow: inset 2px 2px 5px rgba(107, 60, 31, 0.2);
-      height: 40px;
-    }
-
-    .chat-user-input button {
-      margin-left: 0.3em;
-      border: 2px solid #6b3c1f;
-      background-color: #ffce83;
-      color: #6b3c1f;
-      font-size: 12px; /* Larger input and button text */
-      padding: 0.3em 0.5em;
-      cursor: pointer;
-      font-family: "Press Start 2P", monospace;
-      box-shadow: 2px 2px 0 rgba(107, 60, 31, 0.5);
-      transition: transform 0.1s;
-    }
-    
-    .chat-user-input button:hover {
-      background-color: #ffda9e;
-    }
-    
-    .chat-user-input button:active {
-      transform: translateY(1px);
-      box-shadow: 1px 1px 0 rgba(107, 60, 31, 0.5);
-    }
-
-    .history-box {
-      margin: 1em;
-      padding: 1em;
-      background: linear-gradient(to bottom, #ffda9e, #ffce83);
-      border: 4px solid #dba45a;
-      border-radius: 4px;
-      box-shadow: 5px 5px 0 rgba(107, 60, 31, 0.4);
-      max-width: 1400px;
-      width: calc(100% - 2em);
-      margin: 1em auto;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .history-box::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: repeating-linear-gradient(90deg, #ffe8bf, #ffce83 4px, #ffe8bf 8px);
-      opacity: 0.5;
-    }
-
-    .history-box h3 {
-      margin: 0;
-      font-size: 16px; /* Larger history box header */
-      margin-bottom: 0.5em;
-      text-shadow: 2px 2px 0 rgba(107, 60, 31, 0.2);
-      color: #8B4513;
-      position: relative;
-      padding-left: 10px;
-    }
-    
-    .history-box h3::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 5px;
-      height: 5px;
-      background-color: #8B4513;
-    }
-
-    #historyContent {
-      background-color: #fff3d3;
-      border: 2px solid #dba45a;
-      padding: 0.5em;
-      font-size: 14px; /* Larger history content text */
-      border-radius: 4px;
-      box-shadow: inset 2px 2px 5px rgba(107, 60, 31, 0.2);
-    }
-
-    .chat-log {
-      min-height: 150px;
-      background-color: #fff3d3;
-      border: 2px solid #dba45a;
-      padding: 0.5em;
-      margin-bottom: 0.5em;
-      font-size: 12px; /* Larger chat log text */
-      overflow-y: auto;
-      max-height: 200px;
-      box-shadow: inset 2px 2px 5px rgba(107, 60, 31, 0.2);
-      border-radius: 4px;
-    }
-
-    .chat-log p:nth-child(odd) {
-      background-color: rgba(255, 206, 131, 0.3);
-      padding: 3px;
-      border-radius: 2px;
-    }
-
-    p {
-      margin: 0.4em 0;
-    }
-
-    /* Add pixelated state indicators */
-    #currentState {
-      position: relative;
-      padding: 5px 10px;
-      border: 2px solid #6b3c1f;
-      background-color: #fff3d3;
-      display: inline-block;
-      margin: 0 3px;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>PROJECT ZOOMIES!</h1>
-    <div class="status-line">
-      <span id="petName">Whiskers</span> is currently <span id="currentState">ACTIVE</span>
-    </div>
-    <!-- Placeholder cat icon in a circular badge -->
-    <div class="cat-icon">
-      <img src="myBOY.jpg" alt="Pet Icon" />
-    </div>
-  </header>
-
-  <div class="main-container">
-    <!-- Activity box -->
-    <div class="box activity-section">
-      <h2>Activity</h2>
-      <div class="chart-title">Activity Graph</div>
-      <div class="chart-container">
-        <canvas id="activityChart"></canvas>
-      </div>
-    </div>
-
-    <!-- Chat box -->
-    <div class="box chat-section">
-      <h2>Chat with ComPawnion</h2>
-      <!-- Chat log area -->
-      <div class="chat-log" id="chatLog">Loading Chat…</div>
-
-      <!-- Quick chat buttons -->
-      <div class="chat-buttons">
-        <button onclick="onQuickChat('Hello!')">Hello!</button>
-        <button onclick="onQuickChat('Hi')">Hi</button>
-        <button onclick="onQuickChat('How\s Whiskers??')">How's Whiskers??</button>
-      </div>
-      <div class="chat-user-input">
-        <input type="text" id="chatInput" placeholder="Type message…" />
-        <button onclick="onSendMessage()">Send</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- History box -->
-  <div class="history-box">
-    <h3>History</h3>
-    <div id="historyContent">No history yet…</div>
-  </div>
-
-  <script>
-    // Global variables for chart + data
-    let activityChart;
-    let activityData = [];
-    let totalActiveMinutes = 0;
-    let totalIdleMinutes = 0;
-
-    document.addEventListener("DOMContentLoaded", function () {
-      const db = firebase.database();
-      const petNameEl = document.getElementById("petName");
-      const currentStateEl = document.getElementById("currentState");
-      const historyEl = document.getElementById("historyContent");
-
-      // Setup the Chart.js line chart
-      const ctx = document.getElementById("activityChart").getContext("2d");
-      activityChart = new Chart(ctx, {
-        type: "line",
-        data: {
-          datasets: [
-            {
-              label: "Activity Level",
-              data: [],
-              borderColor: "#cc6200",
-              backgroundColor: "rgba(255, 140, 0, 0.3)",
-              tension: 0.2,
-              fill: true,
-              parsing: { xAxisKey: "x", yAxisKey: "y" },
-              showLine: true, // Ensure only the line is shown
-              pointRadius: 0 // Disable points on the graph
-            }
-          ],
-        },
-        options: {
-          responsive: true,
-          scales: {
-            x: {
-              type: "time",
-              time: {
-                unit: "minute",
-                stepSize: 5,
-                displayFormats: {
-                  minute: 'HH:mm'
-                }
-              },
-            },
-            y: {
-              beginAtZero: true,
-              suggestedMax: 10,
-            },
-          },
-        },
-      });
-
-      // Listen to the entire DB or a specific ref
-      db.ref("/sensor").on("value", (snapshot) => {
-        const data = snapshot.val();
-        if (!data) {
-          return;
-        }
-
-        // Transform the object-of-objects into array
-        const entries = Object.values(data);
-
-        // Sort by timestamp ascending
-        entries.sort((a, b) => a.timestamp - b.timestamp);
-
-        // Get the latest timestamp to use as reference point
-        const latestTimestamp = entries.length > 0 ? entries[entries.length - 1].timestamp : Date.now();
-        const oneHourAgo = latestTimestamp - (60 * 60 * 1000); // 1 hour in milliseconds
-        const sixHoursAgo = latestTimestamp - (6 * 60 * 60 * 1000); // 6 hours in milliseconds
-
-        // Filter only past hour's data
-        const hourEntries = entries.filter(
-          (item) => item.timestamp >= oneHourAgo && item.timestamp <= latestTimestamp
+      header::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: repeating-linear-gradient(
+          90deg,
+          #dba45a,
+          #ffce83 4px,
+          #dba45a 8px
         );
+        opacity: 0.5;
+      }
 
-        // For activity/idle calculations, use past 6 hours
-        const sixHourEntries = entries.filter(
-          (item) => item.timestamp >= sixHoursAgo && item.timestamp <= latestTimestamp
+      h1 {
+        margin: 0.2em 0;
+        font-size: 24px; /* Larger header text */
+        text-shadow: 3px 3px 0 rgba(107, 60, 31, 0.3);
+        color: #8b4513;
+        letter-spacing: 1px;
+      }
+
+      .status-line {
+        font-size: 18px; /* Slightly larger status text */
+        margin-top: 0.5em;
+        text-shadow: 2px 2px 0 rgba(107, 60, 31, 0.2);
+      }
+
+      .cat-icon {
+        position: fixed;
+        top: 30px;
+        right: 30px;
+        width: 180px;
+        height: 180px;
+        border: 4px solid #dba45a;
+        border-radius: 8px;
+        background-color: #ffe8bf;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: rotate(3deg);
+        box-shadow: 3px 3px 0 rgba(107, 60, 31, 0.5);
+        z-index: 100;
+      }
+
+      .cat-icon::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border: 2px solid #ffe8bf;
+        border-radius: 4px;
+        pointer-events: none;
+      }
+
+      .cat-icon img {
+        width: 160px;
+        height: 160px;
+        image-rendering: pixelated;
+        object-fit: cover;
+      }
+
+      .main-container {
+        display: flex;
+        justify-content: space-around;
+        margin: 1em;
+        flex-wrap: wrap;
+        max-width: 1400px;
+        width: 100%;
+        margin: 1em auto;
+      }
+
+      .box {
+        background: linear-gradient(to bottom, #ffda9e, #ffce83);
+        border: 4px solid #dba45a;
+        border-radius: 4px;
+        padding: 1em;
+        margin: 0.5em;
+        min-width: 280px;
+        width: calc(45% - 2em);
+        box-shadow: 5px 5px 0 rgba(107, 60, 31, 0.4);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .box::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: repeating-linear-gradient(
+          90deg,
+          #ffe8bf,
+          #ffce83 4px,
+          #ffe8bf 8px
         );
+        opacity: 0.5;
+      }
 
-        // Clear accumulators
-        activityData = [];
-        let movingAverageData = [];
-        totalActiveMinutes = 0;
+      .box::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: repeating-linear-gradient(
+          90deg,
+          #dba45a,
+          transparent 4px,
+          #dba45a 8px
+        );
+        opacity: 0.3;
+      }
+
+      .box h2,
+      .box h3 {
+        margin: 0 0 0.5em 0;
+        font-size: 16px; /* Increase box header sizes */
+        text-shadow: 2px 2px 0 rgba(107, 60, 31, 0.2);
+        color: #8b4513;
+        position: relative;
+        padding-left: 10px;
+      }
+
+      .box h2::before,
+      .box h3::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 5px;
+        height: 5px;
+        background-color: #8b4513;
+      }
+
+      .activity-section .chart-title {
+        font-size: 14px; /* Slightly larger chart title */
+        margin-bottom: 0.5em;
+        color: #6b3c1f;
+      }
+
+      .chart-container {
+        background-color: #fff3d3;
+        border: 2px solid #dba45a;
+        border-radius: 4px;
+        padding: 0.5em;
+        box-shadow: inset 2px 2px 5px rgba(107, 60, 31, 0.2);
+      }
+
+      #activityChart {
+        width: 100%;
+        height: 250px;
+      }
+
+      .chat-buttons button {
+        display: inline-block;
+        margin: 0.3em 0.2em;
+        font-size: 12px; /* Larger button text */
+        padding: 0.3em 0.5em;
+        border: 2px solid #6b3c1f;
+        background-color: #fff3d3;
+        color: #6b3c1f;
+        cursor: pointer;
+        font-family: "Press Start 2P", monospace;
+        box-shadow: 2px 2px 0 rgba(107, 60, 31, 0.5);
+        transition: transform 0.1s;
+      }
+
+      .chat-buttons button:hover {
+        transform: translateY(-2px);
+        box-shadow: 2px 4px 0 rgba(107, 60, 31, 0.5);
+      }
+
+      .chat-buttons button:active {
+        transform: translateY(0);
+        box-shadow: 1px 1px 0 rgba(107, 60, 31, 0.5);
+      }
+
+      .chat-user-input {
+        display: flex;
+        margin-top: 0.3em;
+      }
+
+      .chat-user-input input {
+        flex: 1;
+        border: 2px solid #6b3c1f;
+        background-color: #fff3d3;
+        color: #6b3c1f;
+        padding: 0.5em;
+        font-size: 12px; /* Larger input and button text */
+        font-family: "Press Start 2P", monospace;
+        box-shadow: inset 2px 2px 5px rgba(107, 60, 31, 0.2);
+        height: 40px;
+      }
+
+      .chat-user-input button {
+        margin-left: 0.3em;
+        border: 2px solid #6b3c1f;
+        background-color: #ffce83;
+        color: #6b3c1f;
+        font-size: 12px; /* Larger input and button text */
+        padding: 0.3em 0.5em;
+        cursor: pointer;
+        font-family: "Press Start 2P", monospace;
+        box-shadow: 2px 2px 0 rgba(107, 60, 31, 0.5);
+        transition: transform 0.1s;
+      }
+
+      .chat-user-input button:hover {
+        background-color: #ffda9e;
+      }
+
+      .chat-user-input button:active {
+        transform: translateY(1px);
+        box-shadow: 1px 1px 0 rgba(107, 60, 31, 0.5);
+      }
+
+      .history-box {
+        margin: 1em;
+        padding: 1em;
+        background: linear-gradient(to bottom, #ffda9e, #ffce83);
+        border: 4px solid #dba45a;
+        border-radius: 4px;
+        box-shadow: 5px 5px 0 rgba(107, 60, 31, 0.4);
+        max-width: 1400px;
+        width: calc(100% - 2em);
+        margin: 1em auto;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .history-box::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: repeating-linear-gradient(
+          90deg,
+          #ffe8bf,
+          #ffce83 4px,
+          #ffe8bf 8px
+        );
+        opacity: 0.5;
+      }
+
+      .history-box h3 {
+        margin: 0;
+        font-size: 16px; /* Larger history box header */
+        margin-bottom: 0.5em;
+        text-shadow: 2px 2px 0 rgba(107, 60, 31, 0.2);
+        color: #8b4513;
+        position: relative;
+        padding-left: 10px;
+      }
+
+      .history-box h3::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 5px;
+        height: 5px;
+        background-color: #8b4513;
+      }
+
+      #historyContent {
+        background-color: #fff3d3;
+        border: 2px solid #dba45a;
+        padding: 0.5em;
+        font-size: 14px; /* Larger history content text */
+        border-radius: 4px;
+        box-shadow: inset 2px 2px 5px rgba(107, 60, 31, 0.2);
+      }
+
+      .chat-log {
+        min-height: 150px;
+        background-color: #fff3d3;
+        border: 2px solid #dba45a;
+        padding: 0.5em;
+        margin-bottom: 0.5em;
+        font-size: 12px; /* Larger chat log text */
+        overflow-y: auto;
+        max-height: 200px;
+        box-shadow: inset 2px 2px 5px rgba(107, 60, 31, 0.2);
+        border-radius: 4px;
+      }
+
+      .chat-log p:nth-child(odd) {
+        background-color: rgba(255, 206, 131, 0.3);
+        padding: 3px;
+        border-radius: 2px;
+      }
+
+      p {
+        margin: 0.4em 0;
+      }
+
+      /* Add pixelated state indicators */
+      #currentState {
+        position: relative;
+        padding: 5px 10px;
+        border: 2px solid #6b3c1f;
+        background-color: #fff3d3;
+        display: inline-block;
+        margin: 0 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>PROJECT ZOOMIES!</h1>
+      <div class="status-line">
+        <span id="petName">Whiskers</span> is currently
+        <span id="currentState">ACTIVE</span>
+      </div>
+      <!-- Placeholder cat icon in a circular badge -->
+      <div class="cat-icon">
+        <img src="myBOY.jpg" alt="Pet Icon" />
+      </div>
+    </header>
+
+    <div class="main-container">
+      <!-- Activity box -->
+      <div class="box activity-section">
+        <h2>Activity</h2>
+        <div class="chart-title">Activity Graph</div>
+        <div class="chart-container">
+          <canvas id="activityChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chat box -->
+      <div class="box chat-section">
+        <h2>Chat with ComPawnion</h2>
+        <!-- Chat log area -->
+        <div class="chat-log" id="chatLog">Start Chatting!</div>
+
+        <!-- Quick chat buttons -->
+        <div class="chat-buttons">
+          <button onclick="onQuickChat('Hello!')">Hello!</button>
+          <button onclick="onQuickChat('Hi')">Hi</button>
+          <button onclick="onQuickChat('How\'s Whiskers??')">
+            How's Whiskers??
+          </button>
+        </div>
+        <div class="chat-user-input">
+          <input type="text" id="chatInput" placeholder="Type message…" />
+          <button onclick="onSendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- History box -->
+    <div class="history-box">
+      <h3>History</h3>
+      <div id="historyContent">No history yet…</div>
+    </div>
+
+    <script>
+      let activityChart,
+        activityData = [],
+        totalActiveMinutes = 0,
         totalIdleMinutes = 0;
 
-        // Build chart data from the hourly subset
-        for (let i = 0; i < hourEntries.length; i++) {
-          const it = hourEntries[i];
-          activityData.push({
+      function formatTimeAsHoursAndMinutes(minutes) {
+        const hours = Math.floor(minutes / 60);
+        const mins = Math.floor(minutes % 60);
+        return hours > 0
+          ? `${hours} hour${hours > 1 ? "s" : ""} and ${mins} minute${
+              mins > 1 ? "s" : ""
+            }`
+          : `${mins} minute${mins > 1 ? "s" : ""}`;
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const db = firebase.database();
+        const petNameEl = document.getElementById("petName");
+        const currentStateEl = document.getElementById("currentState");
+        const historyEl = document.getElementById("historyContent");
+        const ctx = document.getElementById("activityChart").getContext("2d");
+
+        activityChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            datasets: [
+              {
+                label: "Activity Level",
+                data: [],
+                borderColor: "#cc6200",
+                backgroundColor: "rgba(255, 140, 0, 0.3)",
+                tension: 0.2,
+                fill: true,
+                parsing: { xAxisKey: "x", yAxisKey: "y" },
+                showLine: true,
+                pointRadius: 0,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: {
+                type: "time",
+                time: {
+                  unit: "minute",
+                  stepSize: 5,
+                  displayFormats: { minute: "HH:mm" },
+                },
+              },
+              y: { beginAtZero: true, suggestedMax: 10 },
+            },
+          },
+        });
+
+        db.ref("/sensor").on("value", (snapshot) => {
+          const data = snapshot.val();
+          if (!data) return;
+
+          const entries = Object.values(data).sort(
+            (a, b) => a.timestamp - b.timestamp
+          );
+          const latestTimestamp =
+            entries[entries.length - 1]?.timestamp || Date.now();
+          const oneHourAgo = latestTimestamp - 3600000;
+          const sixHoursAgo = latestTimestamp - 21600000;
+
+          const hourEntries = entries.filter(
+            (item) => item.timestamp >= oneHourAgo
+          );
+          const sixHourEntries = entries.filter(
+            (item) => item.timestamp >= sixHoursAgo
+          );
+
+          activityData = hourEntries.map((it) => ({
             x: it.timestamp,
-            y: Math.ceil(Math.abs(it.activityLevel - 9.8)), // Calculate absolute difference from 9.8 and round
+            y: Math.ceil(Math.abs(it.activityLevel - 9.8)),
+          }));
+
+          const movingAverageData = activityData.map((_, i, arr) => {
+            const window = arr.slice(Math.max(0, i - 59), i + 1);
+            const avg =
+              window.reduce((sum, val) => sum + val.y, 0) / window.length;
+            return { x: arr[i].x, y: avg };
           });
-        }
 
-        // Calculate moving average with window size of 60
-        const windowSize = 60;
-        for (let i = 0; i < activityData.length; i++) {
-          if (i >= windowSize - 1) {
-            // We have enough points to calculate a moving average
-            let sum = 0;
-            for (let j = 0; j < windowSize; j++) {
-              sum += activityData[i - j].y;
-            }
-            const avg = sum / windowSize;
-            movingAverageData.push({
-              x: activityData[i].x,
-              y: avg
-            });
-          } else if (i > 0) {
-            // For the first few points, use whatever we have
-            let sum = 0;
-            for (let j = 0; j <= i; j++) {
-              sum += activityData[i - j].y;
-            }
-            const avg = sum / (i + 1);
-            movingAverageData.push({
-              x: activityData[i].x,
-              y: avg
-            });
-          } else {
-            // First point is just itself
-            movingAverageData.push({
-              x: activityData[i].x,
-              y: activityData[i].y
-            });
+          totalActiveMinutes = totalIdleMinutes = 0;
+          for (let i = 0; i < sixHourEntries.length - 1; i++) {
+            const diffMin =
+              (sixHourEntries[i + 1].timestamp - sixHourEntries[i].timestamp) /
+              60000;
+            if (sixHourEntries[i].state === "ACTIVE")
+              totalActiveMinutes += diffMin;
+            else if (sixHourEntries[i].state === "IDLE")
+              totalIdleMinutes += diffMin;
           }
-        }
 
-        // Compute total active/idle durations from consecutive entries in past 6 hours
-        for (let i = 0; i < sixHourEntries.length - 1; i++) {
-          const current = sixHourEntries[i];
-          const next = sixHourEntries[i + 1];
-          const diffMs = next.timestamp - current.timestamp;
-          const diffMin = diffMs / 60000; // ms->minutes
+          currentStateEl.textContent =
+            entries[entries.length - 1]?.state || "UNKNOWN";
+          petNameEl.textContent = "Whiskers";
 
-          if (current.state === "ACTIVE") {
-            totalActiveMinutes += diffMin;
-          } else if (current.state === "IDLE") {
-            totalIdleMinutes += diffMin;
-          }
-        }
+          activityChart.options.scales.x.min = oneHourAgo;
+          activityChart.options.scales.x.max = latestTimestamp;
+          activityChart.data.datasets[0].data = movingAverageData;
+          activityChart.update();
 
-        // If there's at least one entry, figure out the latest state
-        if (entries.length > 0) {
-          const latest = entries[entries.length - 1];
-          currentStateEl.textContent = latest.state || "UNKNOWN";
-        }
-
-        // If needed, rename pet based on your data or just keep "Whiskers"
-        petNameEl.textContent = "Whiskers";
-
-        // Update the chart with past hour bounds
-        activityChart.options.scales.x.min = oneHourAgo;
-        activityChart.options.scales.x.max = latestTimestamp;
-        activityChart.data.datasets[0].data = movingAverageData; // Use moving average as activity level
-        activityChart.update();
-
-        // Format active/idle time as hours and minutes
-        function formatTimeAsHoursAndMinutes(minutes) {
-          const hours = Math.floor(minutes / 60);
-          const mins = Math.floor(minutes % 60);
-          
-          if (hours > 0) {
-            return `${hours} hour${hours > 1 ? 's' : ''} and ${mins} minute${mins > 1 ? 's' : ''}`;
-          } else {
-            return `${mins} minute${mins > 1 ? 's' : ''}`;
-          }
-        }
-
-        // Update the history text with formatted time
-        historyEl.innerHTML = `
-          Whiskers was active for ${formatTimeAsHoursAndMinutes(totalActiveMinutes)}<br/>
-          Whiskers rested for ${formatTimeAsHoursAndMinutes(totalIdleMinutes)}
-        `;
+          historyEl.innerHTML = `
+      Whiskers was active for ${formatTimeAsHoursAndMinutes(
+        totalActiveMinutes
+      )}<br/>
+      Whiskers rested for ${formatTimeAsHoursAndMinutes(totalIdleMinutes)}
+    `;
+        });
       });
 
-    // These functions are no longer needed for chart bounds, but keep them for history calculation
-    function getStartOfToday() {
-      const now = new Date();
-      return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-    }
-    function getEndOfToday() {
-      const now = new Date();
-      return new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        23,
-        59,
-        59
-      );
-    }
-    });
+      const chatLog = document.getElementById("chatLog");
 
-    // ─────────────────────────────────────
-    // Chat with Compawnion (Placeholder)
-    // ─────────────────────────────────────
-
-    // Display a basic chat log in #chatLog
-    const chatLog = document.getElementById("chatLog");
-
-    function appendChatMessage(sender, text) {
-      const line = document.createElement("p");
-      line.textContent = sender + ": " + text;
-      chatLog.appendChild(line);
-      chatLog.scrollTop = chatLog.scrollHeight;
-    }
-
-    function onQuickChat(message) {
-      document.getElementById("chatInput").value = message;
-      onSendMessage();
-    }
-
-    function onSendMessage() {
-      const input = document.getElementById("chatInput");
-      const msg = input.value.trim();
-      if (msg) {
-        appendChatMessage("You", msg);
-        input.value = "";
-        // Placeholder call to Gemini
-        sendMessageToGemini(msg);
+      function appendChatMessage(sender, text) {
+        const line = document.createElement("p");
+        line.textContent = `${sender}: ${text}`;
+        chatLog.appendChild(line);
+        chatLog.scrollTop = chatLog.scrollHeight;
       }
-    }
 
-    function sendMessageToGemini(userMessage) {
-      const apiKey = "AIzaSyBQuIAP92b2UHhfykqhOnosl4cL89osUAM";
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+      function onQuickChat(message) {
+        document.getElementById("chatInput").value = message;
+        onSendMessage();
+      }
 
-      const currentState = document.getElementById("currentState").textContent;
-      const activeTime = formatTimeAsHoursAndMinutes(totalActiveMinutes);
-      const idleTime = formatTimeAsHoursAndMinutes(totalIdleMinutes);
+      function onSendMessage() {
+        const input = document.getElementById("chatInput");
+        const msg = input.value.trim();
+        if (msg) {
+          appendChatMessage("You", msg);
+          input.value = "";
+          sendMessageToGemini(msg);
+        }
+      }
 
-      const prompt = `You are a caretaker for the user's cat, Whiskers. Respond with cat puns and silly jokes when appropriate. Your job is to inform the user about the cat's activity. Current state: ${currentState}. Total active time: ${activeTime}. Total idle time: ${idleTime}. User message: ${userMessage}`;
+      function sendMessageToGemini(userMessage) {
+        // if (userMessage.toLowerCase().includes("sound")) {
+        //   const db = firebase.database();
+        //   const soundUpdate = {
+        //     activityLevel: 0,
+        //     state: "SOUND",
+        //     timestamp: firebase.database.ServerValue.TIMESTAMP,
+        //   };
+        //   db.ref("current")
+        //     .set(soundUpdate)
+        //     .then(() =>
+        //       console.log(
+        //         "Current state updated to SOUND in Firebase:",
+        //         soundUpdate
+        //       )
+        //     )
+        //     .catch((error) =>
+        //       console.error("Error updating current state:", error)
+        //     );
+        // }
+        const apiKey = "AIzaSyBQuIAP92b2UHhfykqhOnosl4cL89osUAM";
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const currentState =
+          document.getElementById("currentState").textContent;
+        const activeTime = formatTimeAsHoursAndMinutes(totalActiveMinutes);
+        const idleTime = formatTimeAsHoursAndMinutes(totalIdleMinutes);
 
-      const requestBody = {
-        contents: [
-          {
-            parts: [
-              {
-                text: prompt
-              }
-            ]
-          }
-        ]
-      };
+        const prompt = `You are a caretaker for the user's cat, Whiskers. Respond with cat puns and silly jokes when appropriate, don't do too much. Your job is to inform the user about the cat's status and activity, even if the user doesn't ask for it directly. Avoid bold or italics, emojis are fine. Current state: ${currentState}. Total active time: ${activeTime}. Total idle time: ${idleTime}. User message: ${userMessage}`;
 
-      fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody)
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          const compawnionReply = data?.contents?.[0]?.parts?.[0]?.text || "No response";
-          appendChatMessage("Compawnion", compawnionReply);
+        fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
         })
-        .catch((error) => {
-          console.error("Error calling Gemini API:", error);
-          appendChatMessage("Compawnion", "Sorry, I couldn't fetch a response.");
-        });
-    }
-  </script>
-</body>
+          .then((res) => res.json())
+          .then((data) => {
+            const compawnionReply =
+              data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
+            appendChatMessage("Compawnion", compawnionReply);
+          })
+          .catch(() =>
+            appendChatMessage(
+              "Compawnion",
+              "Sorry, I couldn't fetch a response."
+            )
+          );
+      }
+    </script>
+  </body>
 </html>
